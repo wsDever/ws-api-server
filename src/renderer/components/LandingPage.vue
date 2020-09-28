@@ -2,9 +2,9 @@
   <div class="land-wraper">
 	  <div class="edit-wraper">
 		<div class="edit-box">
-			<div class="edit-title"><span>接口名称</span><input type="text" v-model="fileName"></div>
-			<div class="edit-title"><span>接口用途</span><input type="text"></div>
-			<textarea name="" id="source" cols="30" rows="10" @input="watchEdit"></textarea>
+			<div class="edit-title"><span>接口名称</span><a-input v-model="fileName"/></div>
+			<div class="edit-title"><span>接口用途</span><a-input /></div>
+			<a-input type="textarea" v-model="fileContent" @input="watchEdit" @keydown="watchKey" />
 		</div>
 		<div class="edit-result">
 			<ul class="result-tips">
@@ -37,7 +37,8 @@
 			servpath: '',
 			
 			editCode: '',
-			fileName: ''
+			fileName: '',
+			fileContent: ''
 		}
 	},
 	mounted(){
@@ -68,19 +69,33 @@
 					time: new Date().getTime()
 				})
 			}
-			let txt = document.getElementById('source').value;
-			if(!txt || !this.fileName){
+			// if(!this.fileContent || !this.fileName){
+			// 	return ;
+			// }
+			if(!this.fileName){
+				this.$message.error('接口名称不能为空');
+				return ;
+			}else if (!this.getFileType(this.fileName, 'json')){
+				this.$message.error('接口名称必须为.json');
+				return ;
+			}
+			if(!this.fileContent){
+				this.$message.error('接口内容不能为空');
+				return ;
+			} else if(!this.isJsonText(this.fileContent)){
+				this.$message.error('接口内容不是正确的json格式');
 				return ;
 			}
 			let _this = this;
-			fs.writeFile(path.join(__static, `../../${this.servpath}/${this.fileName}`), txt, function(e){
+			file.fileWrite(`./${this.fileName}`, true, this.fileContent, e => {
 				if(e){
 					_this.$root.HandleEvent.$emit('addLog' ,{
 						mess: `save the file ${_this.fileName} error`,
 						type: "error",
 						time: new Date().getTime()
 					})
-				}else{
+					return;
+				} else {
 					_this.$root.HandleEvent.$emit('addLog' ,{
 						mess: `save the file ${_this.fileName} ok`,
 						type: "handle",
@@ -88,20 +103,83 @@
 					})
 					_this.$root.HandleEvent.$emit('serverStart');
 				}
-			});
+				this.$router.push('./lists')
+			})
 		},
 		getFile(filename){
-			let fileTxt = fs.readFileSync(path.join(__static, `../../${this.servpath}/${filename}`), 'utf8');
+			let fileTxt = file.fileReadSync(`./${filename}`)
 			this.$root.HandleEvent.$emit('addLog' ,{
 				mess: `open the file ${this.fileName} ok`,
 				type: "handle",
 				time: new Date().getTime()
 			})
-			document.getElementById('source').value = fileTxt ;
+			this.fileContent = fileTxt ;
 			this.editCode = fileTxt ;
+		},
+		getFileType(furl, type = 'json'){
+			return furl.split('.')[1] == type;	
+		},
+		isJsonText(text){
+			try{
+				let obj = JSON.parse(text);	
+				if(typeof obj == 'object' && obj){
+					return true;
+				}else{
+					return false
+				}
+			}catch(e){
+				return false
+			}
 		},
 		watchEdit(e){
 			this.editCode = e.target.value
+		},
+		watchKey(e){
+			// console.log(e)
+			const _this = e.target; 
+			const start = _this.selectionStart;
+			const end = _this.selectionEnd;
+			let selected = window.getSelection().toString();
+			if(e.keyCode == 9){
+				e.preventDefault();
+				let indent = '    ""';
+				selected = indent + selected.replace(/\n/g, '\n' + indent);
+				_this.value = _this.value.substring(0, start) + selected
+						+ _this.value.substring(end);
+				_this.setSelectionRange(start + indent.length, start
+						+ selected.length - 1);
+			}
+			if(e.key == "Enter"){
+				let str_s = _this.value.substring(0, start);
+				let str_e = _this.value.substring(end);
+				if(str_s.charAt(str_s.length-1) == ','){
+					e.preventDefault();
+					let indent = '\n    ""';
+					selected = indent + selected.replace(/\n/g, '\n' + indent);
+					_this.value = _this.value.substring(0, start) + selected
+							+ _this.value.substring(end);
+					_this.setSelectionRange(start + indent.length, start
+							+ selected.length -1 );
+				}else if(str_e.charAt(0) == '}'){
+					e.preventDefault();
+					let indent = '\n    ""\n';
+					selected = indent + selected.replace(/\n/g, '\n' + indent);
+					_this.value = _this.value.substring(0, start) + selected
+							+ _this.value.substring(end);
+					_this.setSelectionRange(start + indent.length, start
+							+ selected.length - 2 );
+				}
+				
+			}
+			if(e.key == ":"){
+				e.preventDefault();
+				let indent = ': "",';
+				selected = indent + selected.replace(/\n/g, '\n' + indent);
+				_this.value = _this.value.substring(0, start) + selected
+						+ _this.value.substring(end);
+				_this.setSelectionRange(start + indent.length, start
+						+ selected.length - 2);
+			}
 		}
     }
   }
@@ -110,7 +188,7 @@
 @import '../assets/common.scss';
 
 .land-wraper {
-	$footBarHeight: 80px;
+	$footBarHeight: 60px;
 
 	height: 100%;
 	.edit-wraper{
@@ -148,6 +226,7 @@
 				padding: 10px;
 				line-height: 20px;
 				overflow-y: auto;
+				font-size: 14px;
 			}
 		}
 		.edit-result{
@@ -155,12 +234,14 @@
 			$lineHeight: 25px;
 			.result-tips{
 				padding: 20px;
+				margin-bottom: 0;
 				font-size: 12px;
 				background: #333;
 				list-style: none;
 				line-height: $lineHeight;
 				color: #999;
 				height: 90px;
+				border-bottom: 1px solid #999;
 			}
 			pre{
 				height: calc(100% - #{$lineHeight * 2} - 40px);

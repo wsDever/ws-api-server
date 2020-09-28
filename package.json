@@ -44,26 +44,28 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-	  "icon": "build/icons/icon.ico",
-	  "target": [
-		{
-	  		"target": "nsis"
-		}
-	  ]
+      "icon": "build/icons/icon.ico",
+      "target": [
+        {
+          "target": "nsis"
+        }
+      ]
     },
     "linux": {
       "icon": "build/icons"
-	},
-	"nsis": {
-        "oneClick": false, 
-        "allowToChangeInstallationDirectory": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   },
   "dependencies": {
-    "vue": "^2.5.16",
+    "ant-design-vue": "^1.6.5",
     "axios": "^0.18.0",
+    "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vuex": "^3.5.1"
   },
   "devDependencies": {
     "ajv": "^6.5.0",

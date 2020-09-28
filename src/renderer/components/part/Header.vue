@@ -1,20 +1,30 @@
 <template>
 	<div id="header">
-		<div class="page-logo">
-			<img src="../../assets/logo1.png" alt="">
-		</div>
-		<div class="page-menus">
-			<div class="menu-box">
-				<router-link to='/set'>设置</router-link>
-				<router-link to='/landing'>添加</router-link>
-				<router-link to='/list'>列表</router-link>
-			</div>
-		</div>
-		<div class="page-tools">
-			<div class="start-btn" @click="startServer">
+		<a-layout-header>
+			<img class="logo" src="../../assets/logo.png" />
+			<a-menu
+				theme="dark"
+				mode="horizontal"
+				:default-selected-keys="[]"
+				:style="{ lineHeight: '64px' }"
+			>
+				<!-- <a-menu-item key="1">
+					<router-link to='/welcome'>欢迎</router-link>
+				</a-menu-item> -->
+				<a-menu-item key="2">
+					<router-link to='/set'>设置</router-link>
+				</a-menu-item>
+				<a-menu-item key="3">
+					<router-link to='/landing'>添加接口</router-link>
+				</a-menu-item>
+				<a-menu-item key="4">
+					<router-link to='/lists'>列表接口</router-link>
+				</a-menu-item>
+			</a-menu>
+			<a-button type="primary" class="start-btn" @click="startServer">
 				{{ !$root.server ? '启动':'运行中.' }}
-			</div>
-		</div>
+			</a-button>
+		</a-layout-header>
 	</div>
 </template>
 
@@ -26,13 +36,16 @@ import httpd from 'http';
 import common from '../../../javascript/common.js';
 import file from '../../../javascript/file.js';
 
+let url = require('url');
 export default {
 	name: 'Header',
 	data(){
 		return {
-			servport: 0,
-			servpath: ''
+			servport: 0
 		}
+	},
+	computed:{
+		
 	},
 	created() {
 		this.closeServer();
@@ -55,22 +68,36 @@ export default {
 				return ;
 			}
 			this.servport = sessionStorage.getItem('port');
-			this.servpath = sessionStorage.getItem('path');
 
 			this.$root.server = httpd.createServer((req,res) => {
-				fs.readFile(`${path.join(__static, `../../`)}${req.url}`, (err, data) => {
+				console.log("请求文件为：", `${path.join(__root_dir, `./`)}${req.url}`)
+
+				let _url = req.url;
+				const parms = url.parse(_url, true).query;
+				const parmsArr = Object.getOwnPropertyNames(parms); 
+				if(parmsArr.length != 0){
+					_url = req.url.split('?')[0];
+					this.$root.HandleEvent.$emit('addLog' ,{
+						mess: `http request at ${ _url } params: ${JSON.stringify(parms)}`,
+						type: "service",
+						time: new Date().getTime()
+					})
+				}
+				
+				fs.readFile(`${path.join(__root_dir, `./`)}${_url}`, (err, data) => {
 					if(err){
 						res.writeHeader(404);
-						res.write('404');
+						res.write('<div>The file is not found</div>');
 						this.$root.HandleEvent.$emit('addLog' ,{
-							mess: `http request at ${ req.url } error`,
+							mess: `http request at ${ _url } error`,
 							type: "error",
 							time: new Date().getTime()
 						})
 					}else{
+						res.writeHeader(200);
 						res.write(data)
 						this.$root.HandleEvent.$emit('addLog' ,{
-							mess: `http request at ${ req.url } ok`,
+							mess: `http request at ${ _url } ok`,
 							type: "service",
 							time: new Date().getTime()
 						})
@@ -96,7 +123,7 @@ export default {
 			} 
 		},
 		checkFile(){
-			file.fileRead('config.cfg', 'json', (flag, data) => {
+			file.fileRead('config.cfg', false, 'json', (flag, data) => {
 				if(flag == 'error'){
 					this.$root.HandleEvent.$emit('addLog' ,{
 						mess: `get config.cfg error`,
@@ -106,9 +133,10 @@ export default {
 					return ;
 				}else{
 					this.servport = data.serv_port;
-					this.servpath = data.serv_path;
 					sessionStorage.setItem('port',data.serv_port)
 					sessionStorage.setItem('path',data.serv_path)
+
+					__root_dir = data.serv_path.replace(/\\/g, '\\\\');
 					this.$root.HandleEvent.$emit('addLog' ,{
 						mess: `get config.cfg ok`,
 						type: "log",
@@ -122,81 +150,20 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+@import '../../assets/common.scss';
 #header{
-	height: 60px;
-	width: 100%;
-	// background: #ececec;
-	background-image: linear-gradient(to right, transparent, #1E79DE);
-	display: flex;
+	height: $headerHeight;
+	position: relative;
 }
-.page-logo{
-	width: 20%;
-	img{
-		width: 200px;
-	}
+.logo {
+    height: 48px;
+    float: left;
+    margin-left: -20px;
+    margin-top: 8px;
 }
-.page-menus{
-	// float: left;
-	// display: flex;
-	height: 60px;
-	width: 50%;
-	.menu-box{
-		height: 30px;
-		margin-top: 25px;
-	}
-	a{
-		height: 30px;
-		line-height: 30px;
-		// margin-top: 15px;
-		text-decoration: none;
-		width: 25%;
-		text-align: center;
-		display: inline-block;
-		position: relative;
-		&.router-link-active{
-			color: white;
-			&:after{
-				content: "";
-				position: absolute;
-				height: 3px;
-				width: 72%;
-				bottom: -5px;
-				left: 50%;
-				transform: translateX(-50%);
-				background: #e5e5e5;
-				border-radius: 20px 20px 0 0;
-			}
-			&:before{
-				content: "";
-				position: absolute;
-				height: 0;
-				width: 0;
-				border: 6px solid transparent;
-				bottom: -3px;
-				left: 50%;
-				transform: translateX(-50%);
-				border-bottom-color: #e5e5e5;
-			}
-		}
-	}
-}
-.page-tools{
-	width: 20%;
-	// float: left;
-	diaplay: flex;
-	.start-btn{
-		cursor: pointer;
-		height: 36px;
-		width: 66px;
-		background: #1E79DE;
-		font-size: 12px;
-		line-height: 34px;
-		text-align: center;
-		color: #fff;
-		margin-top: 10px;
-		border-radius: 5px;
-		// box-shadow: 5px 5px 5px #1E79DE;
-	}
-	
+.start-btn{
+	position: absolute;
+	right: 50px;
+	top: 16px;
 }
 </style>

@@ -14,21 +14,7 @@ export default {
 	name: 'Log',
 	data(){
 		return {
-			logList: [
-				{
-					mess: '这是一条消息一',
-					type: "service",
-					time: "2018-12-18 12:12:12"
-				},{
-					mess: 'This is a log message',
-					type: "log",
-					time: "2018-12-18 12:12:12"
-				},{
-					mess: '这是一条消息一',
-					type: "handle",
-					time: "2018-12-18 12:12:12"
-				}
-			]
+			logList: []
 		}
 	},
 	created() {
@@ -38,16 +24,23 @@ export default {
 		this.$root.HandleEvent.$off('addLog')
 	},
 	mounted() {
-		// setInterval(() => {
-			// this.$root.HandleEvent.$emit('addLog' ,{
-			// 	mess: '这是一条消息一4444444',
-			// 		type: "service",
-			// 		time: "2018-12-18 12:12:12"
-			// })
-		// },1000 * 2)
 	},
 	methods:{
 		addLogLists: function(data){
+			let dTime = new Date(data.time);
+			let year = dTime.getFullYear();
+			let month = dTime.getMonth() + 1;
+			month = month < 10 ? '0' + month : month ;
+			let day = dTime.getDate();
+			day = day < 10 ? '0' + day : day ;
+			let hour = dTime.getHours();
+			hour = hour < 10 ? '0' + hour : hour;
+			let minute = dTime.getMinutes();
+			minute = minute < 10 ? '0' + minute : minute ;
+			let second = dTime.getSeconds();
+			second = second < 10 ? '0' + second : second ;
+
+			data.time = `${year}${month}${day} ${hour}:${minute}:${second}`;
 			this.logList.push(data);
 		}
 	}
@@ -72,16 +65,16 @@ export default {
 		div{
 			line-height: 18px;
 			&.log_error{
-				color: red;
+				color: #ff4d4f;
 			}
 			&.log_log{
-				color: #e5e5e5;
+				color: #FFF;
 			}
 			&.log_service{
-				color: blue;
+				color: #FCFF40;
 			}
 			&.log_handle{
-				color: yellow;
+				color: #E6A23C;
 			}
 			span{
 				color: #fff;

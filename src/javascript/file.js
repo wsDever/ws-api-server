@@ -5,8 +5,16 @@ export default{
 	fileExists(filepath, callback){
 		fs.access(path.join(__static, filepath), fs.constants.F_OK, err => callback(err))
 	},
-	fileRead(filepath, type = 'string', callback){
-		fs.readFile(path.join(__static, filepath), 'utf8', (err, data) => {
+	fileReadSync(filepath, apifile = true){
+		let __frp = apifile ? __root_dir : __static ;
+		console.log("同步读取文件：", path.join(__frp, filepath));
+		return fs.readFileSync(path.join(__frp, filepath), 'utf8');
+	},
+	fileRead(filepath, apifile = true, type = 'string', callback){
+		let __frp = apifile ? __root_dir : __static ;
+		console.log("异步读取文件：", path.join(__frp, filepath));
+
+		fs.readFile(path.join(__frp, filepath), 'utf8', (err, data) => {
 			if(err){
 				callback('error', err)
 				// let errTxt = ''
@@ -27,7 +35,10 @@ export default{
 		});
 
 	},
-	fileWrite(filepath, filecontent, callback){
-		fs.writeFile(path.join(__static, filepath), filecontent, { encoding: 'utf-8' }, res => callback(res));
+	fileWrite(filepath, apifile = true, filecontent, callback){
+		console.log("保存文件的路径：");
+		let __frp = apifile ? __root_dir : __static ;
+		console.log(path.join(__frp, filepath));
+		fs.writeFile(path.join(__frp, filepath), filecontent, { encoding: 'utf-8' }, res => callback(res));
 	}
 }

@@ -30,28 +30,32 @@ export default {
 	},
 	created() {
 		this.$nextTick(() => {
-			this.checkFile();
+			this.setConfig();
 		})
 	},
 	mounted() {
 	},
 	methods: {
-		checkFile(){
+		setConfig(){
 			this.servport = sessionStorage.getItem('port');
 			this.servpath = sessionStorage.getItem('path');
-			this.getFilesLists()
+			this.getFilesLists('./')
 		},
-		getFilesLists(){
-			let files = fs.readdirSync(path.join(__static, `../../${this.servpath}/`))
-			let file = []
-			files.forEach(item => {
-				let type = this.getFileType(item)
+		getFilesLists(fpath){
+			console.log("获取接口列表：", path.join(__root_dir, `${fpath}`));
+
+			let files = fs.readdirSync(path.join(__root_dir, `${fpath}`))
+			for(let i=0;i<files.length;i++){
+				let type = this.getFileType(files[i]);
 				if(type == 'json'){
-					// console.log(path.join(__static, `../../${this.servpath}/${item}`));
-					file.push(item)
+					this.lists.push(`${fpath}${files[i]}`.split('./')[1])
+				} else if(type == 'dir'){
+					this.getFilesLists(`${fpath}${files[i]}/`)
+				}else {
+					continue ;
 				}
-			})
-			this.lists = file;
+			}
+			// this.lists = fileArr;
 			this.$root.HandleEvent.$emit('addLog' ,{
 				mess: `get the api lists ok`,
 				type: "handle",
@@ -68,7 +72,8 @@ export default {
 		},
 		FileDelete(idx){
 			let name = this.lists[idx];
-			fs.unlink(path.join(__static, `../../${this.servpath}/${name}`), err => {
+			console.log("即将删除的文件是：", path.join(__root_dir, `./${name}`));
+			fs.unlink(path.join(__root_dir, `./${name}`), err => {
 				if(!err){
 					this.$root.HandleEvent.$emit('addLog' ,{
 						mess: `delete the file ${name} ok`,
