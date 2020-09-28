@@ -1,8 +1,8 @@
 {
-  "name": "my-pro",
+  "name": "ws-api-server",
   "version": "0.0.1",
-  "author": "wsun",
-  "description": "An electron-vue project",
+  "author": "809663381@qq.com",
+  "description": "A local node server for web",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "diyApi",
+    "productName": "wsApiServer",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"
