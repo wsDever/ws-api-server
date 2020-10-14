@@ -1,6 +1,6 @@
 <template>
   <div class="page-welcome">
-	<div class="page-content">WELCOME</div>
+	<div class="welcome">WELCOME</div>
     <div class="items">
       <!-- <div class="item">
         <div class="name">Path:</div>
@@ -54,7 +54,7 @@
 		position: relative;
 		height: 100%;
 	}
-  .page-content{
+  .welcome{
 	  font-size: 60px;
 	  height: 80%;
 	  padding-top: 20%;
