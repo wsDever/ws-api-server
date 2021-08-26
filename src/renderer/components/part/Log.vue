@@ -47,11 +47,11 @@ export default {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang='less' scoped>
 #log{
 	height: 100%;
 	width: 100%;
-	background: rgba($color: #000000, $alpha: 0.8);
+	background: rgba(0,0,0,.8);
 	color: #fff;
 	font-size: 12px;
 	padding: 10px 0 10px 10px;

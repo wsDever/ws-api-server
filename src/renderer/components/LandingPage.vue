@@ -184,17 +184,17 @@
     }
   }
 </script>
-<style lang="scss">
-@import '../assets/common.scss';
+<style lang="less">
+@import '../assets/common.less';
 
 .land-wraper {
-	$footBarHeight: 60px;
+	@footBarHeight: 60px;
 
 	height: 100%;
 	.edit-wraper{
 		display: flex;
 		// height: calc(100vh - #{$headerHeight});
-		height: calc(100% - #{$footBarHeight});
+		height: calc(100% - @footBarHeight);
 		min-height: 201px;
 		.edit-box{
 			width: 50%;
@@ -231,20 +231,20 @@
 		}
 		.edit-result{
 			width: 50%;
-			$lineHeight: 25px;
+			@lineHeight: 25px;
 			.result-tips{
 				padding: 20px;
 				margin-bottom: 0;
 				font-size: 12px;
 				background: #333;
 				list-style: none;
-				line-height: $lineHeight;
+				line-height: @lineHeight;
 				color: #999;
 				height: 90px;
 				border-bottom: 1px solid #999;
 			}
 			pre{
-				height: calc(100% - #{$lineHeight * 2} - 40px);
+				height: calc(100% - @lineHeight * 2 - 40px);
 				background: #333;
 				color: #fff;
 				padding: 9px 20px;
@@ -255,7 +255,7 @@
 		}
 	}
 	.land-tool{
-		height: $footBarHeight;
+		height: @footBarHeight;
 		padding: 20px 0;
 		// border-top: 2px solid  red;
 		.btn{
@@ -267,7 +267,7 @@
 			text-align: center;
 			margin: 0 auto;
 			color: #fff;
-			margin-top: calc(#{$footBarHeight/2} - 36px);
+			margin-top: calc(@footBarHeight/2 - 36px);
 		}
 	}
     // background:

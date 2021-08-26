@@ -1,7 +1,5 @@
 <template>
 <div class="page">
-
-
   <a-layout class="layout">
     <Header />
 	<div class="page-body">
@@ -37,8 +35,8 @@
   }
 </script>
 
-<style lang="scss">
-@import './assets/common.scss';
+<style lang="less">
+@import './assets/common.less';
 
 #app{
 	height: 100vh;
@@ -49,7 +47,7 @@
 	overflow: hidden;
 }
 .page-body{
-	height: calc(100vh - #{$headerHeight});
+	height: calc(100vh - @headerHeight);
 	padding: 30px;
 	width: 100%;
 	// overflow: hidden;
@@ -85,12 +83,12 @@
 	min-width: 320px;
 	flex-grow: 0;
 	&.hide-enter-active, &.hide-leave-active {
-	transition: all .2s ease-in-out;
+		transition: all .2s ease-in-out;
 	}
 
 	&.hide-enter, &.hide-leave-to {
-	opacity: 0;
-	min-width: 0;
+		opacity: 0;
+		min-width: 0;
 	}
 }
 </style>

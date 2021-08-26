@@ -149,10 +149,10 @@ export default {
 }
 </script>
 
-<style lang='scss' scoped>
-@import '../../assets/common.scss';
+<style lang='less' scoped>
+@import '../../assets/common.less';
 #header{
-	height: $headerHeight;
+	height: @headerHeight;
 	position: relative;
 }
 .logo {
