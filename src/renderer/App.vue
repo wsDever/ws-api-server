@@ -6,15 +6,12 @@
 		<a-layout-content class="page-content">
 			<div class="left">
 				<router-view></router-view>
-				<!-- <div class="log-dir">
-					<a-icon type="double-right" class="left-to-right" />
-				</div> -->
 			</div>
-			<transition name="hide">
+			<!-- <transition name="hide">
 				<div v-show="$store.state.showLog==1" class="right">
 					<Log />
 				</div>
-			</transition>
+			</transition> -->
 		</a-layout-content>
 	</div>
     <a-layout-footer :style="{ textAlign: 'center' }">
@@ -48,7 +45,7 @@
 }
 .page-body{
 	height: calc(100vh - @headerHeight);
-	padding: 30px;
+	// padding: 30px;
 	width: 100%;
 	// overflow: hidden;
 	background: linear-gradient(to right bottom,#f0f2f5, #fff);

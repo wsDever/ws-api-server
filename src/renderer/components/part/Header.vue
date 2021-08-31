@@ -14,16 +14,16 @@
 				<a-menu-item key="2">
 					<router-link to='/set'>设置</router-link>
 				</a-menu-item>
-				<a-menu-item key="3">
+				<!-- <a-menu-item key="3">
 					<router-link to='/landing'>添加接口</router-link>
-				</a-menu-item>
-				<a-menu-item key="4">
+				</a-menu-item> -->
+				<!-- <a-menu-item key="4">
 					<router-link to='/lists'>列表接口</router-link>
-				</a-menu-item>
+				</a-menu-item> -->
 			</a-menu>
-			<a-button type="primary" class="start-btn" @click="startServer">
+			<!-- <a-button type="primary" class="start-btn" @click="startServer">
 				{{ !$root.server ? '启动':'运行中.' }}
-			</a-button>
+			</a-button> -->
 		</a-layout-header>
 	</div>
 </template>

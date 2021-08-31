@@ -61,14 +61,19 @@
   },
   "dependencies": {
     "ant-design-vue": "^1.6.5",
+    "archiver": "^3.0.0",
     "axios": "^0.18.0",
+    "compressing": "^1.5.1",
+    "fstream": "^1.0.12",
     "less": "^4.1.1",
+    "tar": "^6.1.10",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
     "vuex": "^3.5.1"
   },
   "devDependencies": {
+    "@types/archiver": "^5.1.1",
     "ajv": "^6.5.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
