@@ -1,8 +1,8 @@
 {
-  "name": "ws-api-server",
+  "name": "gcs-pack",
   "version": "0.0.1",
   "author": "809663381@qq.com",
-  "description": "A local node server for web",
+  "description": "A package tool",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "wsApiServer",
+    "productName": "gcsPackage",
     "appId": "com.example.yourapp",
     "directories": {
       "output": "build"
@@ -62,15 +62,10 @@
   "dependencies": {
     "ant-design-vue": "^1.6.5",
     "archiver": "^3.0.0",
-    "axios": "^0.18.0",
-    "compressing": "^1.5.1",
-    "fstream": "^1.0.12",
     "less": "^4.1.1",
-    "tar": "^6.1.10",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
-    "vue-router": "^3.0.1",
-    "vuex": "^3.5.1"
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "@types/archiver": "^5.1.1",

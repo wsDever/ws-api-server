@@ -7,27 +7,18 @@
 			<div class="left">
 				<router-view></router-view>
 			</div>
-			<!-- <transition name="hide">
-				<div v-show="$store.state.showLog==1" class="right">
-					<Log />
-				</div>
-			</transition> -->
 		</a-layout-content>
 	</div>
-    <a-layout-footer :style="{ textAlign: 'center' }">
-      Ant Design ©2018 Created by Ant UED
-    </a-layout-footer>
   </a-layout>
 </div>
 </template>
 <script>
   import Header from './components/part/Header';
-  import Log from './components/part/Log';
   export default {
 	name: 'my-pro',
-	components: { Header, Log },
+	components: { Header },
 	mounted(){
-		console.log(this.$store.state.showLog)
+
 	}
   }
 </script>
@@ -45,7 +36,7 @@
 }
 .page-body{
 	height: calc(100vh - @headerHeight);
-	// padding: 30px;
+	padding: 30px;
 	width: 100%;
 	// overflow: hidden;
 	background: linear-gradient(to right bottom,#f0f2f5, #fff);
@@ -75,17 +66,5 @@
 		padding-top: 50px;
 	}
 }
-.right {
-	width: 30%;
-	min-width: 320px;
-	flex-grow: 0;
-	&.hide-enter-active, &.hide-leave-active {
-		transition: all .2s ease-in-out;
-	}
 
-	&.hide-enter, &.hide-leave-to {
-		opacity: 0;
-		min-width: 0;
-	}
-}
 </style>

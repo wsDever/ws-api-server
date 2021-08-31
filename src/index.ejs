@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>my-pro</title>
+    <title>gcs-build</title>
     <% if (htmlWebpackPlugin.options.nodeModules) { %>
       <!-- Add `node_modules/` to global paths so `require` works properly in development -->
       <script>
@@ -13,15 +13,15 @@
   <body>
     <div id="app"></div>
     <!-- Set `__static` path to static files in production -->
-    <% if (!require('process').browser) { %>
+    <!-- <% if (!require('process').browser) { %>
       <script>
         // if (process.env.NODE_ENV !== 'development') { 
-			window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+			// window.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 			// window.__root_dir = 'G:\\\\myweb\\\\diyApi'; 
-			window.__root_dir = window.__static
+			// window.__root_dir = window.__static
 		// }
       </script>
-    <% } %>
+    <% } %> -->
 
     <!-- webpack builds are automatically injected -->
   </body>

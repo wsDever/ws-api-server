@@ -8,23 +8,28 @@
 			</a-form-model-item> -->
 			<a-form-model-item label="文 件 夹">
 				<a-input v-model="fileDir" class="file-input" />
+				<span class="input-info">说明：vue项目build生成的文件夹</span>
 			</a-form-model-item>
 			<a-form-model-item label="项目">
 				<a-input v-model="prodDir" readOnly @click="openProgFileHandler" class="file-input" />
+				<span class="input-info">说明：要打包的项目根文件夹</span>
 			</a-form-model-item>
 			<a-form-model-item label="项目名称">
 				<a-input v-model="prodName" />
+				<span class="input-info">说明：一般是自动获取项目文件夹的名称，项目名称与文件夹名称不一致时请手动修改</span>
 			</a-form-model-item>
 			<a-form-model-item label="打包目录">
 				<a-input v-model="buildDir" readOnly @click="openBuildFileHandler" class="file-input" />
+				<span class="input-info">说明：打包程序所在的目录文件夹，一般就是 work_dir 目录</span>
 			</a-form-model-item>
 			<a-form-model-item label="打包标志">
 				<a-input v-model="buildFlag" />
+				<span class="input-info">说明：打包生成的文件名称后添加的一个标志，一般可不管</span>
 			</a-form-model-item>
 		</a-form-model>
 
 		<a-button class="sumbit-btn" type="primary" @click="readyBuild" block>
-			打 包
+			立即打包
 		</a-button>
 		<a-drawer
 			title="打包进程"
@@ -32,10 +37,9 @@
 			:closable="true"
 			:visible="logShow"
 			:get-container="false"
-			:wrap-style="{ position: 'absolute' }"
 			@close="logShow=false"
 			>
-			<div v-for="(log, i) in logLists" :key="i">{{ log }}</div>
+			<div v-for="(log, i) in logLists" :class="`log_${ log.type }`" :key="i">{{ log.text }}</div>
 		</a-drawer>
 	</div>
 </template>
@@ -43,17 +47,8 @@
 
 <script>
 import fs from 'fs';
-import fstream from 'fstream';
-import zlib from 'zlib';
-import tar from 'tar';
-import compressing  from 'compressing';
-
 import process from 'child_process';
 import archiver from 'archiver';
-
-import path from 'path';
-import file from '../../javascript/file.js';
-import common from '../../javascript/common.js';
 
 import { remote, dialog } from 'electron';
 
@@ -67,13 +62,12 @@ export default{
 			fileDir: 'light',
 			prodName: '',
 			prodDir: '',
+
 			buildDir: '',
 			buildFlag: '5',
+			
 			logLists: [],
 			logShow: false
-			// servpath: path.join(__static, `../../`),
-			// servip: '',
-			// serveg: ''
 		}
 	},
 	watch:{
@@ -114,51 +108,59 @@ export default{
 							this.buildDir = p[0];
 						}else{
 							this.buildDir = '';
-							console.log(this.$message);
 							this.$message.error(`该目录下不包含[env]文件夹`);
 						}
 					})
 				}
 			})
 		},
-		doZip(source, dist, cbok){		
-
-			let output = fs.createWriteStream(dist);
-			let archive = archiver('zip', {
-				zlib: {
-					level: 9
-				}
+		doZip(source, dist){		
+			return new Promise((resolve, reject) => {
+				let output = fs.createWriteStream(dist);
+				let archive = archiver('zip', {
+					zlib: {
+						level: 9
+					}
+				})
+	
+				output.on('close', () => {
+					resolve('0')
+				})
+				archive.on('error', err => {
+					this.handleLogs(`压缩失败，原因：${ err }`, 'error');
+					resolve(-1)
+				})
+	
+				archive.pipe(output);
+				archive.directory(source, false);
+				archive.finalize();
 			})
-
-			output.on('close', function(){
-				cbok()
-			})
-			archive.on('error', err => {
-				this.handleLogs(`压缩失败，原因：${ err }`);
-			})
-
-			archive.pipe(output);
-			archive.directory(source, false);
-			archive.finalize();
 		},
 		doDelZip(source){
-			fs.access(source , fs.constants.F_OK, (err) => {
-				if(!err){
-					fs.unlinkSync(source);
-				}
+			return new Promise((resolve, reject) => {
+				fs.access(source , fs.constants.F_OK, (err) => {
+					if(!err){
+						fs.unlinkSync(source);
+					}
+					resolve(0);
+				})
 			})
 		},
-		doCopy(source, dist, delsource, cbok){
-			let readStream = fs.createReadStream(source);
-			let writeStream = fs.createWriteStream(dist);
-			readStream.pipe(writeStream);
-			writeStream.on('close', () => {
-				delsource && fs.unlinkSync(source);
-				cbok();
+		doCopy(source, dist, delsource){
+			return new Promise((resolve, reject) => {
+				let readStream = fs.createReadStream(source);
+				let writeStream = fs.createWriteStream(dist);
+				readStream.pipe(writeStream);
+				writeStream.on('close', () => {
+					delsource && fs.unlinkSync(source);
+					resolve(0)
+				})
+				writeStream.on('error', () => {
+					resolve(-1)
+				})
 			})
 		},
 		doBuild(){
-			this.handleLogs(`开始打包，请等待......`);
 			// let _cmd = 'cd F:/work_dir/env && java -cp .;zip4j_1.3.1.jar;bcprov-jdk15-133.jar com.tfzq.javatest.PacketModuleUtil "F://work_dir" "h5_base" "110"'		
 			let _buildDir = this.buildDir.replace(/\\/g, '\\\\');
 			let _cd = `cd ${ _buildDir +'\\' + 'env' }`
@@ -173,14 +175,19 @@ export default{
 			process.exec(`${ _cd } && ${ _bd }`, (err, stdout, stderr) => {
 				clearInterval(_timer);
 				if(stderr){
-					this.handleLogs(`打包失败，原因：${ stderr }`);
+					this.handleLogs(`打包失败，原因：${ stderr }`, 'error');
 					return;
 				}
-				console.log(stdout);
+				// console.log(stdout);
 				this.handleLogs(`打包完成，谢谢！`);
+				this.handleLogs(`打包流程结束`);
 			})
 		},
-		readyBuild(){
+		async readyBuild(){
+			if(this.prodDir == '' || this.buildDir == ''){
+				this.$message.error(`请选择正确的项目及打包目录`);
+				return ;
+			}
 			this.logLists = [];
 			this.logShow = true;
 			
@@ -189,28 +196,41 @@ export default{
 			
 			let _sourceFile = _source + '\\' + this.prodName + '.zip' ;
 			// 先删除light目前下的zip
-			this.doDelZip(_sourceFile);
 			this.handleLogs(`压缩生成 ${ this.prodName }.zip`);
+			await this.doDelZip(_sourceFile);
+
 			// 把目录生成zip
-			this.doZip(_source, _dist, () => {
-				this.handleLogs(`${ this.prodName }.zip 生成成功`);
-				// 复制到light中去
-				this.doCopy(_dist, _sourceFile, true, () => {
-					let _buildDir = this.buildDir.replace(/\\/g, '\\\\');
-					let _buildDist = _buildDir + '\\' + this.prodName + '.zip';
-					// 删除build目录下的zip
-					this.handleLogs(`删除打包目录中的 ${ this.prodName }.zip`);
-					this.doDelZip(_buildDist);
-					// 把light下的zip复制到打包目录下
-					this.handleLogs(`复制 ${ this.prodName }.zip 到打包目录`);
-					this.doCopy(_sourceFile, _buildDist, false, () => {
-						// 开始打包
-						this.doBuild();
-					})
-				});
-			})
+			await this.doZip(_source, _dist)
+			
+			// 复制到light中去
+			let _c = await this.doCopy(_dist, _sourceFile, true);
+			if(_c != 0){
+				this.handleLogs(`${ this.prodName }.zip 生成失败`, 'error');
+				this.handleLogs(`打包流程结束`);
+				return ;
+			}
+			this.handleLogs(`${ this.prodName }.zip 生成成功`);
+
+			let _buildDir = this.buildDir.replace(/\\/g, '\\\\');
+			let _buildDist = _buildDir + '\\' + this.prodName + '.zip';
+
+			// 删除build目录下的zip
+			this.handleLogs(`删除打包目录中的 ${ this.prodName }.zip`);
+			await this.doDelZip(_buildDist);
+
+			// 把light下的zip复制到打包目录下
+			let _cc = await this.doCopy(_sourceFile, _buildDist, false);
+			if(_cc != 0){
+				this.handleLogs(`复制 ${ this.prodName }.zip 到打包目录，失败`, 'error');
+				this.handleLogs(`打包流程结束`);
+				return ;
+			}
+			this.handleLogs(`复制 ${ this.prodName }.zip 到打包目录，成功`);
+
+			this.handleLogs(`开始打包，请等待......`);
+			this.doBuild();
 		},
-		handleLogs(txt){
+		handleLogs(txt, type='info'){
 			let dTime = new Date();
 			let year = dTime.getFullYear();
 			let month = dTime.getMonth() + 1;
@@ -226,7 +246,12 @@ export default{
 
 			let time = `${year}${month}${day} ${hour}:${minute}:${second}`;
 
-			this.logLists.push(`${time} ${txt}`);
+			this.logLists.push(
+					{
+						type,
+						text: `${time} ${txt}`
+					}
+				);
 		}
 	}
 
@@ -236,16 +261,37 @@ export default{
 
 
 <style lang='less' scoped>
+@import '../assets/var.less';
 .set-wraper{
-	margin: 30px;
+	// margin: 30px;
 	padding: 30px 0;
-	background: linear-gradient(to right bottom,#f0f2f5, #fff);
+	// background: linear-gradient(to right bottom,#f0f2f5, #fff);
 	/deep/ .ant-drawer-content{
-		background: #000;
+		background: #333;
+		margin-top: @headerHeight;
 		.ant-drawer-wrapper-body{
 			.ant-drawer-body{
-				color: #fff;
 				font-size: 12px;
+				.log_info{
+					color: #fff;
+				}
+				.log_error{
+					color: red;
+				}
+			}
+		}
+	}
+	/deep/ .ant-form{
+		.ant-row{
+			.ant-form-item-control{
+				position: relative;
+				span.input-info{
+					position: absolute;
+					left: 0;
+    				top: 18px;
+					font-size: 12px;
+					color: #bebebe;
+				}
 			}
 		}
 	}
@@ -254,6 +300,7 @@ export default{
 	cursor: pointer;
 }
 .sumbit-btn{
+	margin-top: 20px;
 	width: 240px;
 	margin-left: 50%;
     transform: translateX(-50%);
