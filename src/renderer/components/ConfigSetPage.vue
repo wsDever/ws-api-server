@@ -49,7 +49,7 @@
 import fs from 'fs';
 import process from 'child_process';
 import archiver from 'archiver';
-
+import iconv from 'iconv-lite';
 import { remote, dialog } from 'electron';
 
 export default{
@@ -172,10 +172,10 @@ export default{
 				this.handleLogs(`打包用时：${ ++_i }`);
 			}, 1000 * 1)
 
-			process.exec(`${ _cd } && ${ _bd }`, (err, stdout, stderr) => {
+			process.exec(`${ _cd } && ${ _bd }`, { encoding: 'binary' }, (err, stdout, stderr) => {
 				clearInterval(_timer);
 				if(stderr){
-					this.handleLogs(`打包失败，原因：${ stderr }`, 'error');
+					this.handleLogs(`打包失败，原因：${ iconv.decode(new Buffer(stderr, 'binary'), 'cp936') }`, 'error');
 					return;
 				}
 				// console.log(stdout);
@@ -227,6 +227,7 @@ export default{
 			}
 			this.handleLogs(`复制 ${ this.prodName }.zip 到打包目录，成功`);
 
+			this.handleLogs(`进入打包目录`);
 			this.handleLogs(`开始打包，请等待......`);
 			this.doBuild();
 		},

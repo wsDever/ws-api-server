@@ -6,11 +6,11 @@
 				theme="dark"
 				mode="horizontal"
 				:default-selected-keys="[]"
-				:style="{ lineHeight: '64px' }"
-			>
+				:style="{ lineHeight: '64px' }">
 				<a-menu-item key="2">
 					<router-link to='/set'> 打 包 </router-link>
 				</a-menu-item>
+			</a-menu>
 		</a-layout-header>
 	</div>
 </template>

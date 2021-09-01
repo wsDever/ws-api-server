@@ -21,12 +21,12 @@ function createWindow () {
   Menu.setApplicationMenu(null);
   
 mainWindow = new BrowserWindow({
-    height: 560,
-    useContentSize: true,
-    width: 1000,
-    minWidth: 580,
-    minHeight: 540
-  })
+  useContentSize: true,
+  width: 1000,
+  height: 600,
+  minWidth: 580,
+  minHeight: 540
+})
 
   mainWindow.loadURL(winURL)
   // 保留debug   

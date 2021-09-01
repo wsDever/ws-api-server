@@ -1,5 +1,5 @@
 {
-  "name": "gcs-pack",
+  "name": "gcs-build",
   "version": "0.0.1",
   "author": "809663381@qq.com",
   "description": "A package tool",
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "gcsPackage",
-    "appId": "com.example.yourapp",
+    "productName": "gcsBuild",
+    "appId": "gscpackagebuild",
     "directories": {
       "output": "build"
     },
@@ -65,6 +65,7 @@
   "dependencies": {
     "ant-design-vue": "^1.6.5",
     "archiver": "^3.0.0",
+    "iconv-lite": "^0.6.3",
     "less": "^4.1.1",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
